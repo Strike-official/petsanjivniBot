@@ -1,0 +1,6 @@
+{
+    "base_url": "https://9617-117-99-187-27.ngrok.io/petsanjivniBot",
+    "rdsCredentials":"",
+    "port":"6008",
+    "gc_api":""
+}
