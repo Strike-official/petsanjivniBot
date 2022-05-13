@@ -43,6 +43,7 @@ func main() {
 	r.HandleFunc("/petsanjivniBot/save_data", save_data).Methods("POST")
 	r.HandleFunc("/petsanjivniBot/cancel_appointment", cancel_appointment).Methods("POST")
 	r.HandleFunc("/petsanjivniBot/cancel", cancel).Methods("POST")
+	r.HandleFunc("/petsanjivniBot/history", history).Methods("POST")
 	http.Handle("/petsanjivniBot/", r)
 
 	if err := http.ListenAndServe(addr, nil); err != nil {
@@ -70,6 +71,10 @@ func cancel_appointment(w http.ResponseWriter, r *http.Request) {
 
 func cancel(w http.ResponseWriter, r *http.Request) {
 	WriteResponse(w, Cancel(DecodeRequestToStruct(r.Body)))
+}
+
+func history(w http.ResponseWriter, r *http.Request) {
+	WriteResponse(w, History(DecodeRequestToStruct(r.Body)))
 }
 
 //##############################################HELPER##########################################################

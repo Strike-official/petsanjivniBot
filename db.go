@@ -124,3 +124,27 @@ func getIdFromDb(db *sql.DB, request schema.Strike_Meta_Request_Structure) (stri
 	}
 	return wrapperObjArr[0], nil
 }
+
+func getBookingsFromDb(db *sql.DB, request schema.Strike_Meta_Request_Structure) ([]schema.Booking_Details_Db_Wrapper, error) {
+	user_id := request.Bybrisk_session_variables.UserId
+
+	var wrapperObj schema.Booking_Details_Db_Wrapper
+	var wrapperObjArr []schema.Booking_Details_Db_Wrapper
+
+	results, err := db.Query("select * from petsanjivni_timeslot_details where id=(select id from bybrisk_user_details where user_id='" + user_id + "') order by date_created desc;")
+	if err != nil {
+		log.Println("[petsanjivniBot][ERROR][getBookingsFromDb] Error fetching from DB: ", err)
+		return wrapperObjArr, err
+	}
+
+	for results.Next() {
+		err = results.Scan(&wrapperObj.BookingID, &wrapperObj.DateOfAppointment, &wrapperObj.Timeslot, &wrapperObj.Species, &wrapperObj.ID, &wrapperObj.DateCreated)
+		if err != nil {
+			log.Println("[petsanjivniBot][ERROR][getBookingsFromDb] Error scaning next row DB: ", err)
+			return wrapperObjArr, err
+		}
+		wrapperObjArr = append(wrapperObjArr, wrapperObj)
+	}
+
+	return wrapperObjArr, err
+}
