@@ -68,3 +68,12 @@ type Wrapper struct {
 	Order_time       time.Time `json:"order_time"`
 	Delivery_date    string    `json:"delivery_date"`
 }
+
+type Booking_Details_Db_Wrapper struct {
+	BookingID         string    `json:"booking_id"`
+	DateOfAppointment string    `json:"date_of_appointment"`
+	Timeslot          string    `json:"timeslot"`
+	Species           string    `json:"species"`
+	ID                string    `json:"id"`
+	DateCreated       time.Time `json:"date_created"`
+}
