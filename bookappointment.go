@@ -14,18 +14,6 @@ import (
 	"github.com/strike-official/go-sdk/strike"
 )
 
-var fullAvailableTimeslots []string = []string{"10:00 AM", "10:15 AM", "10:30 AM", "10:45 AM", "11:00 AM", "11:15 AM", "11:30 AM", "11:45 AM", "12:00 PM", "12:15 PM", "12:30 PM", "12:45 PM",
-	"01:00 PM", "01:15 PM", "01:30 PM", "01:45 PM", "02:00 PM", "02:15 PM", "02:30 PM", "02:45 PM", "03:00 PM", "03:15 PM", "03:30 PM", "03:45 PM",
-	"04:00 PM", "04:15 PM", "04:30 PM", "04:45 PM", "05:00 PM", "05:15 PM", "05:30 PM", "05:45 PM", "06:00 PM", "06:15 PM", "06:30 PM", "06:45 PM",
-	"07:00 PM", "07:15 PM", "07:30 PM", "07:45 PM", "08:00 PM", "08:15 PM", "08:30 PM", "08:45 PM"}
-
-var weekdaysAvailableTimeslots []string = []string{"10:00 AM", "10:15 AM", "10:30 AM", "10:45 AM", "11:00 AM", "11:15 AM", "11:30 AM", "11:45 AM", "12:00 PM", "12:15 PM", "12:30 PM", "12:45 PM",
-	"01:00 PM", "01:15 PM", "01:30 PM", "01:45 PM", "05:00 PM", "05:15 PM", "05:30 PM", "05:45 PM", "06:00 PM", "06:15 PM", "06:30 PM", "06:45 PM",
-	"07:00 PM", "07:15 PM", "07:30 PM", "07:45 PM", "08:00 PM", "08:15 PM", "08:30 PM", "08:45 PM"}
-
-var weekendsAvailableTimeslots []string = []string{"10:00 AM", "10:15 AM", "10:30 AM", "10:45 AM", "11:00 AM", "11:15 AM", "11:30 AM", "11:45 AM", "12:00 PM", "12:15 PM", "12:30 PM", "12:45 PM",
-	"01:00 PM", "01:15 PM", "01:30 PM", "01:45 PM"}
-
 func SelectDate(request schema.Strike_Meta_Request_Structure) *strike.Response_structure {
 	name := request.Bybrisk_session_variables.Username
 	strike_object := strike.Create("select_date", Conf.BaseURL+"/select_timeslot_species")
@@ -73,7 +61,7 @@ func SelectTimeSlotAndSpecies(request schema.Strike_Meta_Request_Structure) *str
 
 	answer_object2.AnswerCard().SetHeaderToAnswer(1, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H5, "Dog", "#009646", true).
 		AnswerCard().SetHeaderToAnswer(1, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H5, "Cat", "#009646", true).
-		AnswerCard().SetHeaderToAnswer(1, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H5, "Cow", "#009646", true)
+		AnswerCard().SetHeaderToAnswer(1, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H5, "Rabbit", "#009646", true)
 
 	return strike_object
 }
@@ -143,114 +131,6 @@ func getWeekdayFromDate(d string) string {
 	return t.Weekday().String()
 }
 
-func getIndexForWeekdayTimeslot(ts string) int {
-	switch ts {
-	case "10:00 AM":
-		return 0
-	case "10:15 AM":
-		return 1
-	case "10:30 AM":
-		return 2
-	case "10:45 AM":
-		return 3
-	case "11:00 AM":
-		return 4
-	case "11:15 AM":
-		return 5
-	case "11:30 AM":
-		return 6
-	case "11:45 AM":
-		return 7
-	case "12:00 PM":
-		return 8
-	case "12:15 PM":
-		return 9
-	case "12:30 PM":
-		return 10
-	case "12:45 PM":
-		return 11
-	case "01:00 PM":
-		return 12
-	case "01:15 PM":
-		return 13
-	case "01:30 PM":
-		return 14
-	case "01:45 PM":
-		return 15
-	case "05:00 PM":
-		return 16
-	case "05:15 PM":
-		return 17
-	case "05:30 PM":
-		return 18
-	case "05:45 PM":
-		return 19
-	case "06:00 PM":
-		return 20
-	case "06:15 PM":
-		return 21
-	case "06:30 PM":
-		return 22
-	case "06:45 PM":
-		return 23
-	case "07:00 PM":
-		return 24
-	case "07:15 PM":
-		return 25
-	case "07:30 PM":
-		return 26
-	case "07:45 PM":
-		return 27
-	case "08:00 PM":
-		return 28
-	case "08:15 PM":
-		return 29
-	case "08:30 PM":
-		return 30
-	case "08:45 PM":
-		return 31
-	}
-	return -1
-}
-
-func getIndexForWeekendTimeslot(ts string) int {
-	switch ts {
-	case "10:00 AM":
-		return 0
-	case "10:15 AM":
-		return 1
-	case "10:30 AM":
-		return 2
-	case "10:45 AM":
-		return 3
-	case "11:00 AM":
-		return 4
-	case "11:15 AM":
-		return 5
-	case "11:30 AM":
-		return 6
-	case "11:45 AM":
-		return 7
-	case "12:00 PM":
-		return 8
-	case "12:15 PM":
-		return 9
-	case "12:30 PM":
-		return 10
-	case "12:45 PM":
-		return 11
-	case "01:00 PM":
-		return 12
-	case "01:15 PM":
-		return 13
-	case "01:30 PM":
-		return 14
-	case "01:45 PM":
-		return 15
-	}
-	return -1
-}
-
 func bookOnCalender(request schema.Strike_Meta_Request_Structure, dateOfAppointment string) {
 
 	date := dateOfAppointment
@@ -291,7 +171,7 @@ func bookOnCalender(request schema.Strike_Meta_Request_Structure, dateOfAppointm
 func pushNotification(request schema.Strike_Meta_Request_Structure, dateOfAppointment string) {
 	timeString, dateString := getTimeAndDateStringUTC(request, dateOfAppointment)
 	species := request.User_session_variables.PetSpecies[0]
-	response := strike.Notification(request.Bybrisk_session_variables.UserId, request.Bybrisk_session_variables.BusinessId).SetContent("🕘 You have an appointment for your " + species + " in 10 minutes").SetTargetTimeUTC(timeString).SetTargetDateUTC(dateString).Do()
+	response := strike.Notification(request.Bybrisk_session_variables.UserId, request.Bybrisk_session_variables.BusinessId).SetContent("🔔 You have an appointment for your " + species + " in 10 minutes").SetTargetTimeUTC(timeString).SetTargetDateUTC(dateString).Do()
 	fmt.Println("----->response from notification:", *response.NotificationID, *response.Result, *response.Status)
 }
 
@@ -302,7 +182,7 @@ func getTimeAndDateStringUTC(request schema.Strike_Meta_Request_Structure, dateO
 	if err != nil {
 		log.Println("Error loading time location:", err)
 	}
-	formatedTime, err := time.ParseInLocation("2006-Jan-02 03:04 PM", timeToParse, location)
+	formatedTime, err := time.ParseInLocation("02 Jan 2006 03:04 PM", timeToParse, location)
 	if err != nil {
 		log.Println("Error parsing time:", err)
 	}
