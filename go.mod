@@ -3,11 +3,10 @@ module github.com/Strike-official/petsanjivniBot
 go 1.17
 
 require (
-	github.com/Strike-official/reddeggsBot v0.0.0-20220325195313-127532843591
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gorilla/mux v1.8.0
 	github.com/shashank404error/draco v0.0.0-20220225200055-afe7b77f8360
-	github.com/strike-official/go-sdk/strike v0.0.0-20211210093841-48996bec187c
+	github.com/strike-official/go-sdk/strike v0.0.0-20220926021631-c1c5bd4afe8c
 )
 
 require (
