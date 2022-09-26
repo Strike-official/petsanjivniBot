@@ -171,7 +171,7 @@ func bookOnCalender(request schema.Strike_Meta_Request_Structure, dateOfAppointm
 func pushNotification(request schema.Strike_Meta_Request_Structure, dateOfAppointment string) {
 	timeString, dateString := getTimeAndDateStringUTC(request, dateOfAppointment)
 	species := request.User_session_variables.PetSpecies[0]
-	response := strike.Notification(request.Bybrisk_session_variables.UserId, request.Bybrisk_session_variables.BusinessId).SetContent("🕘 You have an appointment for your " + species + " in 10 minutes").SetTargetTimeUTC(timeString).SetTargetDateUTC(dateString).Do()
+	response := strike.Notification(request.Bybrisk_session_variables.UserId, request.Bybrisk_session_variables.BusinessId).SetContent("🔔 You have an appointment for your " + species + " in 10 minutes").SetTargetTimeUTC(timeString).SetTargetDateUTC(dateString).Do()
 	fmt.Println("----->response from notification:", *response.NotificationID, *response.Result, *response.Status)
 }
 
@@ -182,7 +182,7 @@ func getTimeAndDateStringUTC(request schema.Strike_Meta_Request_Structure, dateO
 	if err != nil {
 		log.Println("Error loading time location:", err)
 	}
-	formatedTime, err := time.ParseInLocation("2006-Jan-02 03:04 PM", timeToParse, location)
+	formatedTime, err := time.ParseInLocation("02 Jan 2006 03:04 PM", timeToParse, location)
 	if err != nil {
 		log.Println("Error parsing time:", err)
 	}
