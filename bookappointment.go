@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -84,6 +85,8 @@ func SaveData(request schema.Strike_Meta_Request_Structure, dateOfAppointment st
 	writeAppointmentToDb(RDS_db_connection, request, dateOfAppointment, id)
 	// book on google calender
 	bookOnCalender(request, dateOfAppointment)
+	// schedule push notification
+	pushNotification(request, dateOfAppointment)
 
 	strike_object := strike.Create("select_timeslot", "")
 	question_object := strike_object.Question("").
@@ -283,4 +286,37 @@ func bookOnCalender(request schema.Strike_Meta_Request_Structure, dateOfAppointm
 	if resp.Status != "OK" {
 		log.Println("[petsanjivniBot][ERROR][bookOnCalender] Error response Status not OK")
 	}
+}
+
+func pushNotification(request schema.Strike_Meta_Request_Structure, dateOfAppointment string) {
+	timeString, dateString := getTimeAndDateStringUTC(request, dateOfAppointment)
+	species := request.User_session_variables.PetSpecies[0]
+	response := strike.Notification(request.Bybrisk_session_variables.UserId, request.Bybrisk_session_variables.BusinessId).SetContent("🕘 You have an appointment for your " + species + " in 10 minutes").SetTargetTimeUTC(timeString).SetTargetDateUTC(dateString).Do()
+	fmt.Println("----->response from notification:", *response.NotificationID, *response.Result, *response.Status)
+}
+
+func getTimeAndDateStringUTC(request schema.Strike_Meta_Request_Structure, dateOfAppointment string) (string, string) {
+	timeSlot := request.User_session_variables.TimeSlot[0]
+	timeToParse := dateOfAppointment + " " + timeSlot
+	location, err := time.LoadLocation("Asia/Kolkata")
+	if err != nil {
+		log.Println("Error loading time location:", err)
+	}
+	formatedTime, err := time.ParseInLocation("2006-Jan-02 03:04 PM", timeToParse, location)
+	if err != nil {
+		log.Println("Error parsing time:", err)
+	}
+	formattedtimeUTC := formatedTime.UTC().Add(-600000000000)
+	hour, min, second := formattedtimeUTC.Clock()
+	year, month, day := formattedtimeUTC.Date()
+	timeString := appendZeroToInt(hour) + ":" + appendZeroToInt(min) + ":" + appendZeroToInt(second)
+	dateString := appendZeroToInt(year) + "-" + appendZeroToInt(int(month)) + "-" + appendZeroToInt(day)
+	return timeString, dateString
+}
+
+func appendZeroToInt(i int) string {
+	if i/10 == 0 {
+		return "0" + strconv.Itoa(i)
+	}
+	return strconv.Itoa(i)
 }
