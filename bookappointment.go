@@ -32,7 +32,7 @@ func SelectTimeSlotAndSpecies(request schema.Strike_Meta_Request_Structure) *str
 	question_object1 := strike_object.Question("time_slot").
 		QuestionText().SetTextToQuestion("Select timeslot", "Text Description, getting used for testing purpose.")
 
-	answer_object1 := question_object1.Answer(false).AnswerCardArray(strike.VERTICAL_ORIENTATION)
+	answer_object1 := question_object1.Answer(false).AnswerCardArray(strike.HORIZONTAL_ORIENTATION)
 
 	availableTimeslots := getTimeslotsForDate(request.User_session_variables.DateOfAppointment[0])
 
@@ -40,15 +40,15 @@ func SelectTimeSlotAndSpecies(request schema.Strike_Meta_Request_Structure) *str
 	for i, v := range availableTimeslots {
 		if weekday == "Sunday" {
 			if v == "booked" {
-				answer_object1 = answer_object1.AnswerCard().SetHeaderToAnswer(10, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H6, weekendsAvailableTimeslots[i], "#acadad", true)
+				answer_object1 = answer_object1.AnswerCard().SetHeaderToAnswer(10, "WRAP").AddTextRowToAnswer(strike.H6, weekendsAvailableTimeslots[i], "#acadad", true)
 			} else {
-				answer_object1 = answer_object1.AnswerCard().SetHeaderToAnswer(1, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H5, v, "#009646", true)
+				answer_object1 = answer_object1.AnswerCard().SetHeaderToAnswer(1, "WRAP").AddTextRowToAnswer(strike.H5, v, "#009646", true)
 			}
 		} else {
 			if v == "booked" {
-				answer_object1 = answer_object1.AnswerCard().SetHeaderToAnswer(10, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H6, weekdaysAvailableTimeslots[i], "#acadad", true)
+				answer_object1 = answer_object1.AnswerCard().SetHeaderToAnswer(10, "WRAP").AddTextRowToAnswer(strike.H6, weekdaysAvailableTimeslots[i], "#acadad", true)
 			} else {
-				answer_object1 = answer_object1.AnswerCard().SetHeaderToAnswer(1, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H5, v, "#009646", true)
+				answer_object1 = answer_object1.AnswerCard().SetHeaderToAnswer(1, "WRAP").AddTextRowToAnswer(strike.H5, v, "#009646", true)
 			}
 		}
 
@@ -57,11 +57,12 @@ func SelectTimeSlotAndSpecies(request schema.Strike_Meta_Request_Structure) *str
 	question_object2 := strike_object.Question("pet_species").
 		QuestionText().SetTextToQuestion("Which pet to book for?", "Text Description, getting used for testing purpose.")
 
-	answer_object2 := question_object2.Answer(false).AnswerCardArray(strike.VERTICAL_ORIENTATION)
+	answer_object2 := question_object2.Answer(false).AnswerCardArray(strike.HORIZONTAL_ORIENTATION)
 
-	answer_object2.AnswerCard().SetHeaderToAnswer(1, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H5, "Dog", "#009646", true).
-		AnswerCard().SetHeaderToAnswer(1, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H5, "Cat", "#009646", true).
-		AnswerCard().SetHeaderToAnswer(1, strike.HALF_WIDTH).AddTextRowToAnswer(strike.H5, "Rabbit", "#009646", true)
+	answer_object2.AnswerCard().SetHeaderToAnswer(1, "WRAP").AddTextRowToAnswer(strike.H5, "Dog", "#009646", true).
+		AnswerCard().SetHeaderToAnswer(1, "WRAP").AddTextRowToAnswer(strike.H5, "Cat", "#009646", true).
+		AnswerCard().SetHeaderToAnswer(1, "WRAP").AddTextRowToAnswer(strike.H5, "Rabbit", "#009646", true).
+		AnswerCard().SetHeaderToAnswer(1, "WRAP").AddTextRowToAnswer(strike.H5, "Other", "#009646", true)
 
 	return strike_object
 }
@@ -110,7 +111,86 @@ func getTimeslotsForDate(date string) []string {
 		}
 	}
 
-	return tempTimeslot
+	return removeElapsedTimeSlots(tempTimeslot, date)
+}
+
+func removeElapsedTimeSlots(selectedTimeSlots []string, date string) []string {
+	loc, _ := time.LoadLocation("Asia/Kolkata")
+	currTimeStamp := time.Now().In(loc)
+	currDate := currTimeStamp.Format("02 Jan 2006")
+
+	log.Println("removeElapsedTimeSlots:", selectedTimeSlots, "date:", date, "currDate:", currDate)
+	if date == currDate {
+		var timeSlotsWithoutElapsedTime []string
+		log.Println("It's today!")
+		for _, selectedTimeSlot := range selectedTimeSlots {
+			if selectedTimeSlot == "booked" {
+				continue
+			}
+			hourIn24HourFormat := getHourFromTimeSlot(selectedTimeSlot)
+			hour, minute, _ := currTimeStamp.Clock()
+			if hourIn24HourFormat == hour {
+				minuteFromTimeSlot := getMinuteFromTimeSlot(selectedTimeSlot)
+				if minuteFromTimeSlot > minute {
+					timeSlotsWithoutElapsedTime = append(timeSlotsWithoutElapsedTime, selectedTimeSlot)
+				}
+			}
+			if hourIn24HourFormat > hour {
+				timeSlotsWithoutElapsedTime = append(timeSlotsWithoutElapsedTime, selectedTimeSlot)
+			}
+
+		}
+		selectedTimeSlots = timeSlotsWithoutElapsedTime
+	}
+	return selectedTimeSlots
+}
+
+func getHourFromTimeSlot(selectedTimeSlot string) int {
+	selectedTimeSlotArr := strings.Split(selectedTimeSlot, ":")
+	selectedHour := selectedTimeSlotArr[0]
+	selectedHour = trimZero(selectedHour)
+
+	selectedHourInt, err := strconv.Atoi(selectedHour)
+	if err != nil {
+		log.Println("Error parsing selectedHour string to int:", err)
+	}
+	return formatHourIn24TimeFormat(selectedTimeSlot, selectedHourInt)
+}
+
+func getMinuteFromTimeSlot(selectedTimeSlot string) int {
+	selectedTimeSlotArr := strings.Split(selectedTimeSlot, ":")
+	remainderTimeslotStringArr := strings.Split(selectedTimeSlotArr[1], " ")
+	selectedMinute := remainderTimeslotStringArr[0]
+	selectedMinute = trimZero(selectedMinute)
+	selectedMinuteInt, err := strconv.Atoi(selectedMinute)
+	if err != nil {
+		log.Println("Error parsing selectedMinute string to int:", err)
+	}
+	return selectedMinuteInt
+}
+
+func formatHourIn24TimeFormat(selectedTimeSlot string, selectedHourInt int) int {
+	hourIn24HourFormat := selectedHourInt
+	selectedTimeSlotArr := strings.Split(selectedTimeSlot, ":")
+	remainderTimeslotStringArr := strings.Split(selectedTimeSlotArr[1], " ")
+	if remainderTimeslotStringArr[1] == "PM" {
+		if hourIn24HourFormat == 12 {
+			hourIn24HourFormat = 0
+		}
+		hourIn24HourFormat = hourIn24HourFormat + 12
+	}
+
+	if remainderTimeslotStringArr[1] == "AM" && hourIn24HourFormat == 12 {
+		hourIn24HourFormat = 0
+	}
+	return hourIn24HourFormat
+}
+func trimZero(s string) string {
+	iszero := s[0:1]
+	if iszero == "0" {
+		s = s[1:]
+	}
+	return s
 }
 
 func booked(s []string, index int) []string {
